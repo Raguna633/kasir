@@ -83,6 +83,14 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi input sebelum menyimpan
+        $request->validate([
+            'total_item' => 'required|numeric|min:2', // Memastikan total_item minimal 1
+            'total' => 'required|numeric|min:2', // Memastikan total harga minimal 1
+            'diskon' => 'nullable|numeric|min:0', // Diskon boleh 0
+            'diterima' => 'required|numeric|min:0', // Diterima harus lebih besar dari atau sama dengan 0
+        ]);
+
         $penjualan = Penjualan::findOrFail($request->id_penjualan);
         $penjualan->id_member = $request->id_member;
         $penjualan->total_item = $request->total_item;
@@ -90,6 +98,12 @@ class PenjualanController extends Controller
         $penjualan->diskon = $request->diskon;
         $penjualan->bayar = $request->bayar;
         $penjualan->diterima = $request->diterima;
+
+        // Pastikan total harga dan total item tidak 0
+        if ($penjualan->total_item <= 0 || $penjualan->total_harga <= 0) {
+            return redirect()->back()->withErrors(['error' => 'Total harga dan total item tidak boleh nol atau negatif.'])->withInput();
+        }
+
         $penjualan->update();
 
         $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
@@ -104,6 +118,7 @@ class PenjualanController extends Controller
 
         return redirect()->route('transaksi.selesai');
     }
+
 
     public function show($id)
     {

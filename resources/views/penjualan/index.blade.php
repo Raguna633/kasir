@@ -45,6 +45,21 @@
             autoWidth: false,
             ajax: {
                 url: '{{ route('penjualan.data') }}',
+                type: 'GET',
+                dataSrc: function(json) {
+                    console.log(json); // Menampilkan response di console
+
+                    // Jika json adalah objek, ambil array dari properti yang sesuai, misalnya 'data'
+                    if (Array.isArray(json.data)) {
+                        return json.data.filter(function(item) {
+                            return item.total_item > 0; // Filter item dengan total_item > 0
+                        });
+                    }
+                    // Jika json adalah array, langsung filter
+                    return json.filter(function(item) {
+                        return item.total_item > 0;
+                    });
+                }
             },
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},

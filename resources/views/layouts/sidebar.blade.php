@@ -108,3 +108,14 @@
     </section>
     <!-- /.sidebar -->
 </aside>
+<script>
+    Mousetrap.bind('shift+c', function() {
+        window.location.href = '{{ route('transaksi.baru') }}';
+    });
+    Mousetrap.bind('shift+h', function() {
+        window.location.href = '{{ route('penjualan.index') }}';
+    });
+    Mousetrap.bind('shift+z', function() {
+        window.location.href = '/transaksi';
+    });
+</script>

@@ -79,7 +79,8 @@
                             <div class="tampil-terbilang"></div>
                         </div>
                         <div class="col-lg-4">
-                            <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" method="post">
+                            <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" id="form-penjualan"
+                                method="post">
                                 @csrf
                                 <input type="hidden" name="id_penjualan" value="{{ $id_penjualan }}">
                                 <input type="hidden" name="total" id="total">
@@ -145,7 +146,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         //script sortcut
         Mousetrap.bind('alt+c', function() {
@@ -154,17 +155,23 @@
         Mousetrap.bind('alt+v', function() {
             tampilMember();
         });
+        document.addEventListener('keydown', function(event) {
+            // Mengecek jika Shift + Enter ditekan
+            if (event.shiftKey && event.key === 'Enter') {
+                event.preventDefault(); // Mencegah aksi default Enter
+                document.getElementById('form-penjualan').submit(); // Mengirim form
+            }
+        });
     </script>
 
     <script>
         $(document).ready(function() {
-            // Ketika modal dibuka
+            // Fokus otomatis pada input pencarian ketika modal produk dibuka
             $('#modal-produk').on('shown.bs.modal', function() {
-                // Fokus pada input pencarian
                 $(this).find('input[type="search"]').focus();
             });
 
-            // Event listener untuk menangani penekanan tombol Enter
+            // Event listener untuk menangani penekanan tombol
             $(document).on('keydown', function(event) {
                 // Jika tombol Enter ditekan dan modal produk terbuka
                 if (event.key === 'Enter' && $('#modal-produk').hasClass('in')) {
@@ -180,6 +187,15 @@
 
                         // Memanggil fungsi pilihProduk dengan parameter yang didapat
                         pilihProduk(params[0], params[1]);
+
+                        // Fokus dan block nilai pada input quantity setelah fungsi pilihProduk dipanggil
+                        setTimeout(function() {
+                            const quantityInput = $('.table-penjualan tbody tr').find(
+                                'input.quantity');
+                            if (quantityInput.length > 0) {
+                                quantityInput.focus().select(); // Fokus dan blok nilai input
+                            }
+                        }, 1000); // Delay untuk memastikan elemen sudah ada di DOM
                     }
                 }
             });
