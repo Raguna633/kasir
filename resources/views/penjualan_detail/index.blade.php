@@ -147,10 +147,15 @@
     </div>
 
     <script>
-        Mousetrap.bind('alt+b', function() {
+        //script sortcut
+        Mousetrap.bind('alt+c', function() {
             tampilProduk();
         });
+        Mousetrap.bind('alt+v', function() {
+            tampilMember();
+        });
     </script>
+
     <script>
         $(document).ready(function() {
             // Ketika modal dibuka
@@ -159,21 +164,22 @@
                 $(this).find('input[type="search"]').focus();
             });
 
-            // Event listener untuk menangani penekanan tombol
+            // Event listener untuk menangani penekanan tombol Enter
             $(document).on('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    // Mencegah aksi default (misalnya form submission)
-                    event.preventDefault();
+                // Jika tombol Enter ditekan dan modal produk terbuka
+                if (event.key === 'Enter' && $('#modal-produk').hasClass('in')) {
+                    event.preventDefault(); // Mencegah aksi default Enter
 
-                    // Mengambil produk teratas yang tampil
-                    const firstProductRow = $('#DataTables_Table_1 tbody tr').first();
-                    if (firstProductRow.length) {
-                        const productId = firstProductRow.data('id'); // Ambil data ID produk
-                        const productKode = firstProductRow.find('td').eq(1).text()
-                    .trim(); // Ambil kode produk
+                    // Mendapatkan tombol "Pilih" dari produk pertama
+                    const firstProductButton = $('.table-produk tbody tr').first().find('a.btn-primary');
+                    if (firstProductButton.length > 0) {
+                        // Mendapatkan parameter dari atribut onclick
+                        const onclickValue = firstProductButton.attr('onclick');
+                        const params = onclickValue.match(/'([^']+)'/g).map(param => param.replace(/'/g,
+                            ''));
 
-                        // Memilih produk
-                        pilihProduk(productId, productKode);
+                        // Memanggil fungsi pilihProduk dengan parameter yang didapat
+                        pilihProduk(params[0], params[1]);
                     }
                 }
             });
@@ -317,7 +323,6 @@
                     alert('Tidak dapat menyimpan data');
                     return;
                 });
-
         }
 
         function tampilMember() {
