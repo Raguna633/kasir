@@ -158,6 +158,10 @@
         Mousetrap.bind('alt+c', function() {
             tampilProduk();
         });
+        Mousetrap.bind('alt+d', function() {
+            event.preventDefault();
+            tampilDraft();
+        });
         Mousetrap.bind('alt+v', function() {
             tampilMember();
         });
