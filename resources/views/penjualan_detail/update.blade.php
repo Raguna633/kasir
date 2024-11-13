@@ -83,23 +83,23 @@
                                 <p>Diterima: <span id="diterima">Rp. {{ format_uang($penjualan->diterima) }}</span></p> --}}
                                 <p>Sisa Hutang: <span id="hutang">Rp. {{ format_uang($penjualan->hutang) }}</span></p>
                             </div>
-                            
+
                         </div>
                         <div class="col-lg-4">
                             <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" id="form-penjualan"
                                 method="post">
                                 @csrf
-                                <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $id_penjualan ?? '' }}">
-                                <input type="hidden" name="total" id="total">
-                                <input type="hidden" name="total_item" id="total_item">
-                                <input type="hidden" name="bayar" id="bayar">
-                                <input type="hidden" name="id_member" id="id_member"
-                                    value="{{ $memberSelected->id_member }}">
+                                <input type="hidden" name="id_penjualan" value="{{ $penjualan->id_penjualan }}">
+                                <input type="hidden" name="total" id="total" value="{{ $penjualan->total_harga }}">
+                                <input type="hidden" name="total_item" id="total_item"
+                                    value="{{ $penjualan->total_item }}">
+                                <input type="hidden" name="bayar" id="bayar" value="{{ $penjualan->bayar }}">
+                                <input type="hidden" name="id_member" id="id_member" value="{{ $penjualan->id_member }}">
 
                                 <div class="form-group row">
                                     <label for="totalrp" class="col-lg-2 control-label">Total</label>
                                     <div class="col-lg-8">
-                                        <input type="text" id="totalrp" class="form-control" readonly>
+                                        <input type="text" id="totalrp" class="form-control" value="{{ number_format($penjualan->total_harga, 0, ',', '.') }}" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -138,8 +138,7 @@
                                 <div class="form-group row">
                                     <label for="kembali" class="col-lg-2 control-label">Kembali</label>
                                     <div class="col-lg-8">
-                                        <input type="text" id="kembali" name="kembali" class="form-control"
-                                            value="0" readonly>
+                                        <input type="text" id="kembali" name="kembali" class="form-control" value="{{ number_format($penjualan->diterima - $penjualan->bayar, 0, ',', '.') }}" readonly>
                                     </div>
                                 </div>
                             </form>

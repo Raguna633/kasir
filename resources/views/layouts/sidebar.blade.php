@@ -60,16 +60,34 @@
                     <i class="fa fa-upload"></i> <span>Penjualan</span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('transaksi.index') }}">
                     <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Aktif</span>
                 </a>
+            </li> --}}
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-cart-arrow-down"></i>
+                    <span>Transaksi Aktif</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li>
+                        <a href="{{ route('transaksi.index') }}"><i class="fa fa-plus"></i> Transaksi Sebelumnya</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="tampilDraft()"><i class="fa fa-list"></i> Daftar Draft
+                            Transaksi</a>
+                    </li>
+                </ul>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('transaksi.baru') }}">
                     <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Baru</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="header">REPORT</li>
             <li>
                 <a href="{{ route('laporan.index') }}">
@@ -83,21 +101,34 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route("setting.index") }}">
+                <a href="{{ route('setting.index') }}">
                     <i class="fa fa-cogs"></i> <span>Pengaturan</span>
                 </a>
             </li>
             @else
-            <li>
-                <a href="{{ route('transaksi.index') }}">
-                    <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Aktif</span>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-cart-arrow-down"></i>
+                    <span>Transaksi Aktif</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
                 </a>
+                <ul class="treeview-menu">
+                    <li>
+                        <a href="{{ route('transaksi.index') }}"><i class="fa fa-plus"></i> Transaksi Sebelumnya</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="tampilDraft()"><i class="fa fa-list"></i> Daftar Draft
+                            Transaksi</a>
+                    </li>
+                </ul>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('transaksi.baru') }}">
                     <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Baru</span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a href="{{ route('penjualan.index') }}">
                     <i class="fa fa-upload"></i> <span>Penjualan</span>
@@ -109,13 +140,10 @@
     <!-- /.sidebar -->
 </aside>
 <script>
-    Mousetrap.bind('shift+c', function() {
+    Mousetrap.bind('ctrl+c', function() {
         window.location.href = '{{ route('transaksi.baru') }}';
     });
-    Mousetrap.bind('shift+h', function() {
-        window.location.href = '{{ route('penjualan.index') }}';
-    });
-    Mousetrap.bind('shift+z', function() {
+    Mousetrap.bind('ctrl+z', function() {
         window.location.href = '/transaksi';
     });
 </script>
