@@ -102,7 +102,7 @@ class PenjualanController extends Controller
             $penjualan->diskon = $request->diskon;
             $penjualan->bayar = $request->bayar;
             $penjualan->diterima = $request->diterima;
-            $penjualan->hutang = $penjualan->total_harga - $request->diterima;
+            $penjualan->hutang = $penjualan->total_harga - ($penjualan->diskon / 100 * $penjualan->total_harga) - $request->diterima;
             $penjualan->status = 0; // Tetap draft
             $penjualan->ishutang = 1;
 
@@ -129,7 +129,7 @@ class PenjualanController extends Controller
             $penjualan->diterima = $request->diterima;
 
             if ($request->diterima < $penjualan->total_harga) {
-                $penjualan->hutang = $penjualan->total_harga - $request->diterima;
+                $penjualan->hutang = $penjualan->total_harga - ($penjualan->diskon / 100 * $penjualan->total_harga) - $request->diterima;
                 $penjualan->status = 0; // Tetap draft
             } else {
                 $penjualan->hutang = 0;
@@ -239,24 +239,6 @@ class PenjualanController extends Controller
 
         // Tampilkan view dan kirimkan data draft
         return view('penjualan_detail.draft', compact('drafts'));
-    }
-
-    public function updateDraft(Request $request)
-    {
-        // Pastikan draft sesuai dengan session yang aktif
-        $id_penjualan = session('id_penjualan');
-        $penjualan = Penjualan::findOrFail($id_penjualan);
-
-        $penjualan->id_member = $request->id_member ?? $penjualan->id_member;
-        $penjualan->total_item = $request->total_item ?? $penjualan->total_item;
-        $penjualan->total_harga = $request->total_harga ?? $penjualan->total_harga;
-        $penjualan->bayar = $request->bayar ?? $penjualan->bayar;
-        $penjualan->diterima = $request->diterima ?? $penjualan->diterima;
-        $penjualan->diskon = $request->diskon ?? $penjualan->diskon;
-
-        $penjualan->save();
-
-        return response()->json(['status' => 'Draft updated successfully']);
     }
 
 

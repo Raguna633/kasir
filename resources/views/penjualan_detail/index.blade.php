@@ -52,7 +52,11 @@
                                     <input type="hidden" name="id_produk" id="id_produk">
                                     <input type="text" class="form-control" disabled name="kode_produk" id="kode_produk">
                                     <span class="input-group-btn">
-                                        <button onclick="tampilProduk()" class="btn btn-info btn-flat" type="button"><i
+                                        <button
+                                            @if ($penjualan->ishutang != 0) onclick="tampilPesanHutang()"
+                                        @else
+                                            onclick="tampilProduk()" @endif
+                                            class="btn btn-info btn-flat" type="button"><i
                                                 class="fa fa-arrow-right"></i></button>
                                     </span>
                                 </div>
@@ -83,15 +87,17 @@
                             <div class="form-group row">
                                 <label for="hutang" class="col-lg-2 control-label">Jumlah Belum Dibayar</label>
                                 <div class="col-lg-8">
-                                    <input type="text" id="hutang" name="hutang" class="form-control" value="{{ $penjualan->hutang ?? 0 }}" readonly>
+                                    <input type="text" id="hutang" name="hutang" class="form-control"
+                                        value="{{ $penjualan->hutang ?? 0 }}" readonly>
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                         <div class="col-lg-4">
                             <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" id="form-penjualan"
                                 method="post">
                                 @csrf
-                                <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $id_penjualan ?? '' }}">
+                                <input type="hidden" name="id_penjualan" id="id_penjualan"
+                                    value="{{ $id_penjualan ?? '' }}">
                                 <input type="hidden" name="total" id="total">
                                 <input type="hidden" name="total_item" id="total_item">
                                 <input type="hidden" name="bayar" id="bayar">
@@ -151,11 +157,12 @@
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i
                             class="fa fa-floppy-o"></i> Simpan Transaksi</button>
-                    <button type="button" class="btn btn-warning btn-sm btn-flat pull-right btn-hutang" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-warning btn-sm btn-flat pull-right btn-hutang"
+                        style="margin-right: 10px;">
                         <i class="fa fa-money"></i> Simpan sbg Hutang
                     </button>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -163,7 +170,11 @@
     <script>
         //script sortcut
         Mousetrap.bind('alt+c', function() {
-            tampilProduk();
+            @if ($penjualan->ishutang != 0)
+                tampilPesanHutang()
+            @else
+                tampilProduk()
+            @endif
         });
         Mousetrap.bind('alt+d', function() {
             event.preventDefault();
@@ -219,7 +230,8 @@
                                 quantityInput.on('keydown', function(e) {
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
-                                        table.ajax.reload(() => loadForm($('#diskon').val()));
+                                        table.ajax.reload(() => loadForm($('#diskon')
+                                        .val()));
                                         // $(this)
                                         //     .blur(); // Menghilangkan fokus dari input quantity
                                     }
@@ -243,32 +255,33 @@
     <script>
         let table, table2;
 
-        document.querySelector('.btn-hutang').addEventListener('click', function () {
-    if (confirm('Yakin ingin menyimpan transaksi ini sebagai hutang?')) {
-        const formData = new FormData(document.querySelector('#form-penjualan'));
+        document.querySelector('.btn-hutang').addEventListener('click', function() {
+            if (confirm('Yakin ingin menyimpan transaksi ini sebagai hutang?')) {
+                const formData = new FormData(document.querySelector('#form-penjualan'));
 
-        // Tambahkan data untuk menandai hutang
-        formData.append('simpan_sebagai_hutang', true);
+                // Tambahkan data untuk menandai hutang
+                formData.append('simpan_sebagai_hutang', true);
 
-        fetch('{{ route("transaksi.simpan") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Transaksi disimpan sebagai hutang.');
-                    window.location.href = '{{ route('transaksi.selesai') }}'; // Reload halaman untuk merefresh data
-                } else {
-                    alert(data.message || 'Terjadi kesalahan.');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-});
+                fetch('{{ route('transaksi.simpan') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Transaksi disimpan sebagai hutang.');
+                            window.location.href =
+                            '{{ route('transaksi.selesai') }}'; // Reload halaman untuk merefresh data
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
 
 
         function updateDraftTransaksi() {
@@ -404,6 +417,10 @@
                 $('.form-penjualan').submit();
             });
         });
+
+        function tampilPesanHutang() {
+            alert("Tidak bisa menambah item, transaksi adalah hutang!");
+        }
 
         function tampilProduk() {
             $('#modal-produk').modal('show');
