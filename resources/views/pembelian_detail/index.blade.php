@@ -68,7 +68,8 @@
                                 <input type="hidden" name="id_produk" id="id_produk">
                                 <input type="text" class="form-control" name="kode_produk" id="kode_produk">
                                 <span class="input-group-btn">
-                                    <button onclick="tampilProduk()" class="btn btn-info btn-flat" type="button"><i class="fa fa-arrow-right"></i></button>
+                                    <button onclick="tampilProduk()" class="btn btn-info btn-flat modal-produk" type="button"><i class="fa fa-arrow-right"></i> | <span
+                                        class=" badge bg-secondary">alt+c</span></button>
                                 </span>
                             </div>
                         </div>
@@ -93,7 +94,7 @@
                         <div class="tampil-terbilang"></div>
                     </div>
                     <div class="col-lg-4">
-                        <form action="{{ route('pembelian.store') }}" class="form-pembelian" method="post">
+                        <form action="{{ route('pembelian.store') }}" class="form-pembelian" id="form-pembelian" method="post">
                             @csrf
                             <input type="hidden" name="id_pembelian" value="{{ $id_pembelian }}">
                             <input type="hidden" name="total" id="total">
@@ -124,13 +125,81 @@
             </div>
 
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi | <span
+                    class=" badge bg-secondary">shift+enter</span></button>
             </div>
         </div>
     </div>
 </div>
 
 @includeIf('pembelian_detail.produk')
+
+<script>
+    //script sortcut
+    document.addEventListener('keydown', function(event) {
+        // Mengecek jika Shift + Enter ditekan
+        if (event.shiftKey && event.key === 'Enter') {
+            event.preventDefault(); // Mencegah aksi default Enter
+            document.getElementById('form-pembelian').submit(); // Mengirim form
+        }
+    });
+    Mousetrap.bind('enter', function() {
+        const diterimaInput = $('.form-pembelian').find('input#bayarrp');
+
+        diterimaInput.focus().select(); // fokus dan blok nilai input diterima
+    });
+    Mousetrap.bind('alt+c', function() {
+        tampilProduk();
+    })
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Fokus otomatis pada input pencarian ketika modal produk dibuka
+        $('#modal-produk').on('shown.bs.modal', function() {
+            $(this).find('input[type="search"]').focus();
+        });
+
+        // Event listener untuk menangani penekanan tombol
+        $(document).on('keydown', function(event) {
+            // Jika tombol Enter ditekan dan modal produk terbuka
+            if (event.key === 'Enter' && $('#modal-produk').hasClass('in')) {
+                // Mendapatkan tombol "Pilih" dari produk pertama
+                const firstProductButton = $('.table-produk tbody tr').first().find('a.btn-primary');
+                if (firstProductButton.length > 0) {
+                    // Mendapatkan parameter dari atribut onclick
+                    const onclickValue = firstProductButton.attr('onclick');
+                    const params = onclickValue.match(/'([^']+)'/g).map(param => param.replace(/'/g,
+                        ''));
+
+                    // Memanggil fungsi pilihProduk dengan parameter yang didapat
+                    pilihProduk(params[0], params[1]);
+
+                    // Fokus dan block nilai pada input quantity setelah fungsi pilihProduk dipanggil
+                    setTimeout(function() {
+                        const quantityInput = $('.table-pembelian tbody tr').find(
+                            'input.quantity');
+                        if (quantityInput.length > 0) {
+                            quantityInput.focus().select(); // Fokus dan blok nilai input
+
+                            // Event listener untuk Enter di input quantity
+                            quantityInput.on('keydown', function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    table.ajax.reload(() => loadForm($('#diskon')
+                                        .val()));
+                                    // $(this)
+                                    //     .blur(); // Menghilangkan fokus dari input quantity
+                                }
+                            });
+                        }
+                    }, 2000); // Delay untuk memastikan elemen sudah ada di DOM
+                }
+            }
+        });
+
+    });
+</script>
 @endsection
 
 @push('scripts')

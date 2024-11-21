@@ -6,7 +6,8 @@ use App\Models\Pembelian;
 use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
-use PDF;
+// use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {

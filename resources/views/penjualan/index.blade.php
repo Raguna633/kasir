@@ -34,6 +34,8 @@
     </div>
 </div>
 
+
+
 @includeIf('penjualan.detail')
 @endsection
 

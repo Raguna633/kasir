@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use PDF;
+// use PDF;
 use App\Models\Member;
 use App\Models\Produk;
 use App\Models\Setting;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use App\Models\PenjualanDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PenjualanController extends Controller
 {
@@ -138,15 +139,6 @@ class PenjualanController extends Controller
 
             $penjualan->update();
 
-            // if ($penjualan->ishutang != 0) {
-            //     $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-            //     foreach ($detail as $item) {
-            //         $produk = Produk::find($item->id_produk);
-            //         $penjualan->status = 1;
-            //         $penjualan->ishutang = 0;
-            //         $produk->update();
-            //     }
-            // }
 
             // Perbarui stok hanya jika status final
             if ($penjualan->status === 1 && $penjualan->ishutang === 0) {
@@ -161,57 +153,12 @@ class PenjualanController extends Controller
             return redirect()->back()->withErrors(['error' => 'Transaksi telah selesai dan tidak dapat diperbarui.']);
         }
 
-        return redirect()->route('transaksi.selesai');
-    }
-
-    public function update(Request $request, $id)
-    {
-        // Validasi input sebelum menyimpan
-        $request->validate([
-            'total_item' => 'required|numeric|min:1', // Memastikan total_item minimal 1
-            'total' => 'required|numeric|min:1', // Memastikan total harga minimal 1
-            'diskon' => 'nullable|numeric|min:0', // Diskon boleh 0
-            'diterima' => 'required|numeric|min:0', // Diterima harus lebih besar dari atau sama dengan 0
-        ]);
-
-        $penjualan = Penjualan::findOrFail($request->id_penjualan);
-        $penjualan->id_member = $request->id_member;
-        // $penjualan->total_item = $request->total_item;
-        $penjualan->total_harga = $request->total;
-        $penjualan->diskon = $request->diskon;
-        $penjualan->bayar = $request->bayar;
-        $penjualan->diterima = $request->diterima;
-
-        // Pastikan total harga dan total item tidak 0
-        if ($penjualan->total_item <= 0 || $penjualan->total_harga <= 0) {
-            return redirect()->back()->withErrors(['error' => 'Total harga dan total item tidak boleh nol atau negatif.'])->withInput();
-        }
-
-        if ($request->diterima < $penjualan->total_harga) {
-            // Jika diterima lebih kecil dari total, simpan sisa hutang
-            $penjualan->hutang = $penjualan->total_harga - $request->diterima;
-            $penjualan->status = 0; // Transaksi tetap draft
+        if ($penjualan->diterima > 0) {
+            return redirect()->route('transaksi.selesai');
         } else {
-            $penjualan->hutang = 0; // Tidak ada hutang jika diterima >= total
-            $penjualan->status = 1; // Final
-        }
-
-
-        $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-        foreach ($detail as $item) {
-            $item->diskon = $request->diskon;
-            $item->update();
-
-            $produk = Produk::find($item->id_produk);
-            $produk->stok -= $item->jumlah;
-            $produk->update();
-        }
-
-        $penjualan->update();
-        // session()->forget('id_penjualan');
-        return redirect()->route('transaksi.selesai');
+            return redirect()->route('transaksi.baru');
+        };
     }
-
 
     public function getDraftTransaction($id_penjualan)
     {
@@ -230,15 +177,6 @@ class PenjualanController extends Controller
         // Kirimkan juga id_penjualan ke view
         session(['id_penjualan' => $penjualan->id_penjualan]);
         return view('penjualan_detail.index', compact('penjualan', 'id_penjualan', 'produk', 'drafts', 'member', 'diskon', 'memberSelected'));
-    }
-
-    public function showDrafts()
-    {
-        // Ambil semua transaksi yang berstatus draft (status = 0)
-        $drafts = Penjualan::where('status', 0)->get();
-
-        // Tampilkan view dan kirimkan data draft
-        return view('penjualan_detail.draft', compact('drafts'));
     }
 
 

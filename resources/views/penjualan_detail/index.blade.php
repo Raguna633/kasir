@@ -61,7 +61,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="col-lg-4 d-flex">
+                            <div class="col-lg-2 d-flex justify-content-center align-items-center text-center">
                                 <span class="input-group-button">
                                     <button type="button"  onclick="tampilDraft()" class="btn btn-info btn-flat">
                                         <i class="fa fa-list"> |
@@ -69,6 +69,15 @@
                                     </button>
                                 </span>
                             </div>
+                            <div class="col-lg-2 d-flex justify-content-center align-items-center text-center">
+                                <span class="input-group-button">
+                                    <a type="button" href="{{ route('transaksi.baru') }}" class="btn btn-info btn-flat">
+                                        Transaksi Baru <i class="fa fa-plus"></i> |
+                                        <span class="badge bg-secondary">ctrl+c</span>
+                                    </a>
+                                </span>
+                            </div>
+                            
                         </div>
                     </form>
 
@@ -292,30 +301,6 @@
                     .catch(error => console.error('Error:', error));
             }
         });
-
-
-        function updateDraftTransaksi() {
-            const data = {
-                id_member: $('#id_member').val(),
-                total_item: $('#total_item').val(),
-                total_harga: $('#total_harga').val(),
-                bayar: $('#bayar').val(),
-                diterima: $('#diterima').val(),
-                diskon: $('#diskon').val(),
-            };
-
-            $.ajax({
-                url: "{{ route('penjualan.updateDraft') }}",
-                type: "POST",
-                data: data,
-                success: function(response) {
-                    console.log(response.status); // Log status untuk memastikan update berhasil
-                },
-                error: function(error) {
-                    console.error("Error updating draft:", error);
-                }
-            });
-        }
 
         $('#total_item, #total_harga, #bayar, #diterima, #diskon').on('change', function() {
             updateDraftTransaksi();

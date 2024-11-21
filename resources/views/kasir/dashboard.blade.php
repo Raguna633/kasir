@@ -18,7 +18,10 @@
                 <h1>Selamat Datang</h1>
                 <h2>Anda login sebagai KASIR</h2>
                 <br><br>
-                <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">Transaksi Baru</a>
+                <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">Transaksi Baru
+                    <br>
+                    <span class="badge bg-secondary">ctrl+c</span>
+                </a>
                 <br><br><br>
             </div>
         </div>

@@ -74,17 +74,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/transaksi/nota-besar', [PenjualanController::class, 'notaBesar'])->name('transaksi.nota_besar');
 
         Route::get('/transaksi/{id}/data', [PenjualanDetailController::class, 'data'])->name('transaksi.data');
-        // Route::get('/transaksi/{id}/draft', [PenjualanDetailController::class, 'dataDraft'])->name('transaksi.draft');
         Route::get('/transaksi/loadform/{diskon}/{total}/{diterima}', [PenjualanDetailController::class, 'loadForm'])->name('transaksi.load_form');
         Route::resource('/transaksi', PenjualanDetailController::class)
             ->except('create', 'show', 'edit');
-
         Route::post('/transaksi/update/{id_penjualan}', [PenjualanController::class, 'getDraftTransaction'])->name('transaksi.draft');
-
-
-        Route::get('/penjualan/drafts', [PenjualanController::class, 'showDrafts'])->name('penjualan.drafts');
-
-        Route::post('/penjualan/update-draft', [PenjualanController::class, 'updateDraft'])->name('penjualan.updateDraft');
 
         Route::get('/penjualan/data', [PenjualanController::class, 'data'])->name('penjualan.data');
         Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
