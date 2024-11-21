@@ -26,7 +26,7 @@ class PenjualanDetailController extends Controller
 
             return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected', 'drafts'));
         } else {
-                return redirect()->route('transaksi.baru');
+            return redirect()->route('transaksi.baru');
         }
     }
 
@@ -79,6 +79,12 @@ class PenjualanDetailController extends Controller
 
     public function store(Request $request)
     {
+        $penjualan = Penjualan::findOrFail($request->id_penjualan);
+
+        if ($penjualan->status !== 0) {
+            return response()->json(['message' => 'Transaksi telah selesai dan tidak dapat diubah.'], 400);
+        }
+
         $produk = Produk::where('id_produk', $request->id_produk)->first();
         if (!$produk) {
             return response()->json('Produk tidak ditemukan', 400);
@@ -90,7 +96,6 @@ class PenjualanDetailController extends Controller
             ->first();
 
         if ($detail) {
-            // Jika produk sudah ada, tambahkan jumlahnya
             $newQuantity = $detail->jumlah + 1;
 
             if ($newQuantity > $produk->stok) {
@@ -99,7 +104,7 @@ class PenjualanDetailController extends Controller
 
             $detail->jumlah = $newQuantity;
             $detail->subtotal = $detail->harga_jual * $newQuantity;
-            $detail->save();
+            $detail->update();
         } else {
             if (1 > $produk->stok) {
                 return response()->json(['message' => 'Stok produk tidak mencukupi'], 400);
@@ -112,12 +117,12 @@ class PenjualanDetailController extends Controller
             $detail->jumlah = 1;
             $detail->diskon = 0;
             $detail->subtotal = $produk->harga_jual;
-            $detail->status = '1';
             $detail->save();
         }
 
         return response()->json('Data berhasil disimpan', 200);
     }
+
 
     public function update(Request $request, $id)
     {

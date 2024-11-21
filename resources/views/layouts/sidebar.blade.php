@@ -75,7 +75,10 @@
                 </a>
                 <ul class="treeview-menu">
                     <li>
-                        <a href="{{ route('transaksi.index') }}"><i class="fa fa-plus"></i> Transaksi Sebelumnya</a>
+                        <a href="{{ route('transaksi.baru') }}"><i class="fa fa-plus"></i> Transaksi Baru</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('transaksi.index') }}"><i class="fa fa-clock-o"></i> Transaksi Sebelumnya</a>
                     </li>
                     <li>
                         <a href="#" onclick="tampilDraft()"><i class="fa fa-list"></i> Daftar Draft
@@ -115,6 +118,9 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
+                    <li>
+                        <a href="{{ route('transaksi.baru') }}"><i class="fa fa-plus"></i> Transaksi Baru</a>
+                    </li>
                     <li>
                         <a href="{{ route('transaksi.index') }}"><i class="fa fa-plus"></i> Transaksi Sebelumnya</a>
                     </li>

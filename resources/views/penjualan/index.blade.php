@@ -23,7 +23,9 @@
                         <th>Total Harga</th>
                         <th>Diskon</th>
                         <th>Total Bayar</th>
+                        <th>Belum Terbayar</th>
                         <th>Kasir</th>
+                        <th>Status</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
@@ -69,7 +71,15 @@
                 {data: 'total_harga'},
                 {data: 'diskon'},
                 {data: 'bayar'},
+                {data: 'hutang'},
                 {data: 'kasir'},
+                {data: 'status', render: function(data) {
+                    if (data == 1) {
+                        return '<span class="label label-success">Selesai</span>';
+                    } else {
+                        return '<span class="label label-default">Belum Lunas</span>';
+                    }
+                }},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });

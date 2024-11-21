@@ -78,12 +78,14 @@
                         <div class="col-lg-8">
                             <div class="tampil-bayar bg-primary"></div>
                             <div class="tampil-terbilang"></div>
-                            <div id="info-hutang">
-                                {{-- <p>Total Harga: <span id="total_harga">Rp. {{ format_uang($penjualan->total_harga) }}</span></p>
-                                <p>Diterima: <span id="diterima">Rp. {{ format_uang($penjualan->diterima) }}</span></p> --}}
-                                <p>Sisa Hutang: <span id="hutang">Rp. {{ format_uang($penjualan->hutang) }}</span></p>
-                            </div>
-                            
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="form-group row">
+                                <label for="hutang" class="col-lg-2 control-label">Jumlah Belum Dibayar</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="hutang" name="hutang" class="form-control" value="{{ $penjualan->hutang ?? 0 }}" readonly>
+                                </div>
+                            </div>                            
                         </div>
                         <div class="col-lg-4">
                             <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" id="form-penjualan"
@@ -149,7 +151,11 @@
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i
                             class="fa fa-floppy-o"></i> Simpan Transaksi</button>
+                    <button type="button" class="btn btn-warning btn-sm btn-flat pull-right btn-hutang" style="margin-right: 10px;">
+                        <i class="fa fa-money"></i> Simpan sbg Hutang
+                    </button>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -173,6 +179,11 @@
                 document.getElementById('form-penjualan').submit(); // Mengirim form
             }
         });
+        Mousetrap.bind('enter', function() {
+            const diterimaInput = $('.form-penjualan').find('input#diterima');
+
+            diterimaInput.focus().select(); // fokus dan blok nilai input diterima
+        })
     </script>
 
     <script>
@@ -208,12 +219,13 @@
                                 quantityInput.on('keydown', function(e) {
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
-                                        $(this)
-                                            .blur(); // Menghilangkan fokus dari input quantity
+                                        table.ajax.reload(() => loadForm($('#diskon').val()));
+                                        // $(this)
+                                        //     .blur(); // Menghilangkan fokus dari input quantity
                                     }
                                 });
                             }
-                        }, 1200); // Delay untuk memastikan elemen sudah ada di DOM
+                        }, 2000); // Delay untuk memastikan elemen sudah ada di DOM
                     }
                 }
             });
@@ -230,6 +242,34 @@
 @push('scripts')
     <script>
         let table, table2;
+
+        document.querySelector('.btn-hutang').addEventListener('click', function () {
+    if (confirm('Yakin ingin menyimpan transaksi ini sebagai hutang?')) {
+        const formData = new FormData(document.querySelector('#form-penjualan'));
+
+        // Tambahkan data untuk menandai hutang
+        formData.append('simpan_sebagai_hutang', true);
+
+        fetch('{{ route("transaksi.simpan") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Transaksi disimpan sebagai hutang.');
+                    window.location.href = '{{ route('transaksi.selesai') }}'; // Reload halaman untuk merefresh data
+                } else {
+                    alert(data.message || 'Terjadi kesalahan.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+});
+
 
         function updateDraftTransaksi() {
             const data = {
@@ -337,7 +377,7 @@
                         });
                     })
                     .fail(errors => {
-                        alert('Tidak dapat menyimpan data');
+                        alert('Jumlah melebihi stok yang tersedia');
                         return;
                     });
             });

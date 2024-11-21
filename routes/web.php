@@ -79,7 +79,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('/transaksi', PenjualanDetailController::class)
             ->except('create', 'show', 'edit');
 
-        Route::post('/transaksi/update/{id_penjualan}', [PenjualanController::class, 'getDraftTransaction'])->name('transaksi.update');
+        Route::post('/transaksi/update/{id_penjualan}', [PenjualanController::class, 'getDraftTransaction'])->name('transaksi.draft');
 
 
         Route::get('/penjualan/drafts', [PenjualanController::class, 'showDrafts'])->name('penjualan.drafts');

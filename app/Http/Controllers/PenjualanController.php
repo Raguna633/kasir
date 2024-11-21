@@ -85,6 +85,87 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'total_item' => 'required|numeric|min:1',
+            'total' => 'required|numeric|min:1',
+            'diskon' => 'nullable|numeric|min:0',
+            'diterima' => 'required|numeric|min:0',
+        ]);
+
+        $penjualan = Penjualan::findOrFail($request->id_penjualan);
+
+        // Periksa apakah transaksi disimpan sebagai hutang
+        if ($request->has('simpan_sebagai_hutang')) {
+            $penjualan->id_member = $request->id_member;
+            $penjualan->total_item = $request->total_item;
+            $penjualan->total_harga = $request->total;
+            $penjualan->diskon = $request->diskon;
+            $penjualan->bayar = $request->bayar;
+            $penjualan->diterima = $request->diterima;
+            $penjualan->hutang = $penjualan->total_harga - $request->diterima;
+            $penjualan->status = 0; // Tetap draft
+            $penjualan->ishutang = 1;
+
+            // Perbarui stok produk
+            $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+            foreach ($detail as $item) {
+                $produk = Produk::find($item->id_produk);
+                $produk->stok -= $item->jumlah; // Kurangi stok
+                $produk->update();
+            }
+
+            $penjualan->update();
+
+            return response()->json(['success' => true, 'message' => 'Transaksi disimpan sebagai hutang.']);
+        }
+
+        // Logika default untuk menyimpan transaksi
+        if ($penjualan->status === 0) { // Jika masih draft
+            $penjualan->id_member = $request->id_member;
+            $penjualan->total_item = $request->total_item;
+            $penjualan->total_harga = $request->total;
+            $penjualan->diskon = $request->diskon;
+            $penjualan->bayar = $request->bayar;
+            $penjualan->diterima = $request->diterima;
+
+            if ($request->diterima < $penjualan->total_harga) {
+                $penjualan->hutang = $penjualan->total_harga - $request->diterima;
+                $penjualan->status = 0; // Tetap draft
+            } else {
+                $penjualan->hutang = 0;
+                $penjualan->status = 1; // Final
+            }
+
+            $penjualan->update();
+
+            // if ($penjualan->ishutang != 0) {
+            //     $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+            //     foreach ($detail as $item) {
+            //         $produk = Produk::find($item->id_produk);
+            //         $penjualan->status = 1;
+            //         $penjualan->ishutang = 0;
+            //         $produk->update();
+            //     }
+            // }
+
+            // Perbarui stok hanya jika status final
+            if ($penjualan->status === 1 && $penjualan->ishutang === 0) {
+                $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+                foreach ($detail as $item) {
+                    $produk = Produk::find($item->id_produk);
+                    $produk->stok -= $item->jumlah;
+                    $produk->update();
+                }
+            }
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Transaksi telah selesai dan tidak dapat diperbarui.']);
+        }
+
+        return redirect()->route('transaksi.selesai');
+    }
+
+    public function update(Request $request, $id)
+    {
         // Validasi input sebelum menyimpan
         $request->validate([
             'total_item' => 'required|numeric|min:1', // Memastikan total_item minimal 1
@@ -95,7 +176,7 @@ class PenjualanController extends Controller
 
         $penjualan = Penjualan::findOrFail($request->id_penjualan);
         $penjualan->id_member = $request->id_member;
-        $penjualan->total_item = $request->total_item;
+        // $penjualan->total_item = $request->total_item;
         $penjualan->total_harga = $request->total;
         $penjualan->diskon = $request->diskon;
         $penjualan->bayar = $request->bayar;
@@ -127,59 +208,10 @@ class PenjualanController extends Controller
         }
 
         $penjualan->update();
-        session()->forget('id_penjualan');
-        return redirect()->route('transaksi.index');
+        // session()->forget('id_penjualan');
+        return redirect()->route('transaksi.selesai');
     }
 
-    public function update(Request $request, $id)
-    {
-        $penjualan = Penjualan::find($id);
-        $totalHarga = $penjualan->total_harga;
-        $diterima = $request->input('diterima');
-
-        if ($diterima < $totalHarga) {
-            $penjualan->hutang = $totalHarga - $diterima;
-            $penjualan->status = 0; // Tetap dalam status Draft
-        } else {
-            $penjualan->hutang = 0; // Tidak ada hutang
-            $penjualan->status = 1; // Status menjadi Final
-        }
-
-        $penjualan->diterima = $diterima;
-        $penjualan->bayar = min($totalHarga, $diterima); // Menyimpan jumlah yang telah dibayar
-        $penjualan->save();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function updateProduct(Request $request, $id_penjualan)
-    {
-        $penjualan = Penjualan::findOrFail($id_penjualan);
-
-        // Cari apakah produk sudah ada dalam transaksi
-        $detail = $penjualan->details()->where('id_produk', $request->id_produk)->first();
-
-        if ($detail) {
-            // Update quantity jika produk sudah ada
-            $detail->quantity += $request->quantity;
-            $detail->subtotal = $detail->quantity * $detail->harga;
-            $detail->save();
-        } else {
-            // Tambahkan produk baru jika belum ada
-            $penjualan->details()->create([
-                'id_produk' => $request->id_produk,
-                'quantity' => $request->quantity,
-                'harga' => Produk::find($request->id_produk)->harga,
-                'subtotal' => $request->quantity * Produk::find($request->id_produk)->harga
-            ]);
-        }
-
-        // Update total harga transaksi
-        $penjualan->total_harga = $penjualan->details->sum('subtotal');
-        $penjualan->save();
-
-        return response()->json(['status' => 'success', 'message' => 'Produk berhasil diperbarui']);
-    }
 
     public function getDraftTransaction($id_penjualan)
     {
@@ -196,28 +228,8 @@ class PenjualanController extends Controller
         $drafts = Penjualan::where('status', 0)->get();
 
         // Kirimkan juga id_penjualan ke view
-        return view('penjualan_detail.update', compact('penjualan', 'id_penjualan', 'produk', 'drafts', 'member', 'diskon', 'memberSelected'));
-    }
-
-
-
-    public function bayarHutang(Request $request, $id)
-    {
-        $penjualan = Penjualan::find($id);
-        $bayar = $request->input('bayar');
-
-        if ($bayar >= $penjualan->hutang) {
-            $penjualan->bayar += $penjualan->hutang;
-            $penjualan->hutang = 0;
-            $penjualan->status = 1; // Transaksi final setelah hutang lunas
-        } else {
-            $penjualan->bayar += $bayar;
-            $penjualan->hutang -= $bayar;
-        }
-
-        $penjualan->save();
-
-        return response()->json(['success' => true]);
+        session(['id_penjualan' => $penjualan->id_penjualan]);
+        return view('penjualan_detail.index', compact('penjualan', 'id_penjualan', 'produk', 'drafts', 'member', 'diskon', 'memberSelected'));
     }
 
     public function showDrafts()

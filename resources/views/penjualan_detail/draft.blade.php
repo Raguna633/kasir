@@ -12,6 +12,7 @@
                         <th width="5%">No</th>
                         <th>ID Member</th>
                         <th>Total Item</th>
+                        <th>Total Harga</th>
                         <th>Total Belum Terbayar</th>
                         <th>Tanggal</th>
                         <th><i class="fa fa-cog"></i></th>
@@ -24,10 +25,11 @@
                                     <td><span class="label label-success">{{ $item->id_member }}</span></td>
                                     <td>{{ $item->total_item }}</td>
                                     <td>{{ $item->total_harga }}</td>
+                                    <td>{{ $item->hutang }}</td>
                                     <td>{{ $item->created_at }}</td>
                     
                                     <td>
-                                        <form action="{{ route('transaksi.update', $item->id_penjualan) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('transaksi.draft', $item->id_penjualan) }}" method="POST" style="display: inline;">
                                             @csrf
                                             <button type="submit" class="btn btn-primary btn-xs btn-flat">
                                                 <i class="fa fa-check-circle"></i> Pilih
