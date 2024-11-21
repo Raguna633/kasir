@@ -56,10 +56,18 @@
                                             @if ($penjualan->ishutang != 0) onclick="tampilPesanHutang()"
                                         @else
                                             onclick="tampilProduk()" @endif
-                                            class="btn btn-info btn-flat" type="button"><i
-                                                class="fa fa-arrow-right"></i></button>
+                                            class="btn btn-info btn-flat" type="button"><i class="fa fa-arrow-right"></i> |
+                                            <span class=" badge bg-secondary">alt+c</span></button>
                                     </span>
                                 </div>
+                            </div>
+                            <div class="col-lg-4 d-flex">
+                                <span class="input-group-button">
+                                    <button type="button"  onclick="tampilDraft()" class="btn btn-info btn-flat">
+                                        <i class="fa fa-list"> |
+                                        </i> <span class="badge bg-secondary">alt+d</span>
+                                    </button>
+                                </span>
                             </div>
                         </div>
                     </form>
@@ -118,7 +126,8 @@
                                                 value="{{ $memberSelected->kode_member }}">
                                             <span class="input-group-btn">
                                                 <button onclick="tampilMember()" class="btn btn-info btn-flat"
-                                                    type="button"><i class="fa fa-arrow-right"></i></button>
+                                                    type="button"><i class="fa fa-arrow-right"></i> | <span
+                                                        class=" badge bg-secondary">alt+v</span></button>
                                             </span>
                                         </div>
                                     </div>
@@ -156,9 +165,10 @@
                 </div>
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i
-                            class="fa fa-floppy-o"></i> Simpan Transaksi</button>
-                    <button type="button" class="btn btn-warning btn-sm btn-flat pull-right btn-hutang"
-                        style="margin-right: 10px;">
+                            class="fa fa-floppy-o"></i> Simpan Transaksi | <span
+                            class=" badge bg-secondary">shift+enter</span></button>
+                    <button type="button" @if ($penjualan->ishutang != 0) disabled @endif
+                        class="btn btn-warning btn-sm btn-flat pull-right btn-hutang" style="margin-right: 10px;">
                         <i class="fa fa-money"></i> Simpan sbg Hutang
                     </button>
                 </div>
@@ -231,7 +241,7 @@
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
                                         table.ajax.reload(() => loadForm($('#diskon')
-                                        .val()));
+                                            .val()));
                                         // $(this)
                                         //     .blur(); // Menghilangkan fokus dari input quantity
                                     }
@@ -274,7 +284,7 @@
                         if (data.success) {
                             alert('Transaksi disimpan sebagai hutang.');
                             window.location.href =
-                            '{{ route('transaksi.selesai') }}'; // Reload halaman untuk merefresh data
+                                '{{ route('transaksi.selesai') }}'; // Reload halaman untuk merefresh data
                         } else {
                             alert(data.message || 'Terjadi kesalahan.');
                         }

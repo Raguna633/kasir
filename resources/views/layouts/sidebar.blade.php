@@ -149,7 +149,4 @@
     Mousetrap.bind('ctrl+c', function() {
         window.location.href = '{{ route('transaksi.baru') }}';
     });
-    Mousetrap.bind('ctrl+z', function() {
-        window.location.href = '/transaksi';
-    });
 </script>
