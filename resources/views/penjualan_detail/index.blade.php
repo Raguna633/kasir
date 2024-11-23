@@ -63,21 +63,21 @@
                             </div>
                             <div class="col-lg-2 d-flex justify-content-center align-items-center text-center">
                                 <span class="input-group-button">
-                                    <button type="button"  onclick="tampilDraft()" class="btn btn-info btn-flat">
-                                        <i class="fa fa-list"> |
-                                        </i> <span class="badge bg-secondary">alt+d</span>
+                                    <button type="button" onclick="tampilDraft()" class="btn btn-info btn-flat">
+                                        <i class="fa fa-list"></i> Draft Transaksi | 
+                                        <span class="badge bg-secondary">alt+d</span>
                                     </button>
                                 </span>
                             </div>
                             <div class="col-lg-2 d-flex justify-content-center align-items-center text-center">
                                 <span class="input-group-button">
                                     <a type="button" href="{{ route('transaksi.baru') }}" class="btn btn-info btn-flat">
-                                        Transaksi Baru <i class="fa fa-plus"></i> |
+                                        <i class="fa fa-plus"></i> Transaksi Baru |
                                         <span class="badge bg-secondary">ctrl+c</span>
                                     </a>
                                 </span>
                             </div>
-                            
+
                         </div>
                     </form>
 
