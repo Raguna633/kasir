@@ -30,8 +30,7 @@
   <![endif]-->
 
     <!-- Google Font -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <link rel="stylesheet" href="{{ asset('Source_Code_Pro/SourceCodePro-VariableFont_wght.ttf') }}">
 
     @stack('css')
 </head>
@@ -84,9 +83,6 @@
     <script src="{{ asset('AdminLTE-2/dist/js/adminlte.min.js') }}"></script>
     <!-- Validator -->
     <script src="{{ asset('js/validator.min.js') }}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/mousetrap@1.6.5/mousetrap.min.js"></script>
-
 
     <script>
         function preview(selector, temporaryFile, width = 200)  {
